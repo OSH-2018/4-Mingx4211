@@ -30,7 +30,7 @@ POC会去打开/proc/version这个文件。/proc/version并不是一个文本文
 
 程序最终运行结果如下
 
-![2018-07-02 20-52-43屏幕截图](https://github.com/OSH-2018/4-Mingx4211/blob/master/2018-07-02 20-52-43屏幕截图.png)
+![2018-07-02 20-52-43屏幕截图](https://github.com/OSH-2018/4-Mingx4211/blob/master/屏幕截图.png)
 
 成功读取到了`linux_proc_banner`地址上的数据.
 
