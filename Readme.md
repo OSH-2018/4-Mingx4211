@@ -14,23 +14,23 @@
 
 POC会去打开/proc/version这个文件。/proc/version并不是一个文本文件，如果我们的程序尝试去读这个文件，内核会从`linux_proc_banner`这个地址动态地读取系统的信息并返回给程序。这就意味着这个地址上的数据会被加载到cache里。
 
-![Snipaste_2018-07-02_19-06-17](C:\Users\Mingx\Desktop\Snipaste_2018-07-02_19-06-17.png)
+![Snipaste_2018-07-02_19-06-17](https://github.com/OSH-2018/4-Mingx4211/blob/master/Snipaste_2018-07-02_19-06-17.png)
 
 因此POC会打开/proc/version这个文件，并每次在进行Meltdown攻击前，都调用pread()一次，保证内核会将这个地址上的数据读到cache中。接下来POC就开始尝试读取`linux_proc_banner`这个内核地址上的数据了。因为一个地址的数据是由8个bit组成的，POC里每次都是只猜一个bit，因此一个地址要猜8次才行。
 
-![Snipaste_2018-07-02_19-09-40](C:\Users\Mingx\Desktop\Snipaste_2018-07-02_19-09-40.png)
+![Snipaste_2018-07-02_19-09-40](https://github.com/OSH-2018/4-Mingx4211/blob/master/Snipaste_2018-07-02_19-09-40.png)
 
 猜数据的攻击也就是Meltdown攻击。首先POC将用户态target_array的偏移地址传给rbx。然后进行一段rept循环操作，保证数据已经读入cache。接着，将addr上的数据读到al中，随后根据bit的值（也就是第几位）对rax进行位移和AND 1操作，从而得到目标地址上第bit位的值（0或1）。最后根据是rax的值0还是1，对target_array进行写入操作。虽然在实际情况下，执行到`"movb (%[addr]), %%al\n\t"`这一行的时候，CPU就会报出异常了，但因为推测执行的原因，随后的代码已经被执行了，虽然推测执行的结果会回滚，但是对cache的操作却是不可逆的。
 
-![Snipaste_2018-07-02_19-11-50](C:\Users\Mingx\Desktop\Snipaste_2018-07-02_19-11-50.png)
+![Snipaste_2018-07-02_19-11-50](https://github.com/OSH-2018/4-Mingx4211/blob/master/Snipaste_2018-07-02_19-11-50.png)
 
 因为读cache的速度要比读内存快很多，因此我们可以通过访问target_array里数据的速度来判断哪个数据被放到了cache里，从而就能知道目标地址上某一位的数据是什么了。
 
-![Snipaste_2018-07-02_19-12-27](C:\Users\Mingx\Desktop\Snipaste_2018-07-02_19-12-27.png)
+![Snipaste_2018-07-02_19-12-27](https://github.com/OSH-2018/4-Mingx4211/blob/master/Snipaste_2018-07-02_19-12-27.png)
 
 程序最终运行结果如下
 
-![2018-07-02 20-52-43屏幕截图](G:\2018-07-02 20-52-43屏幕截图.png)
+![2018-07-02 20-52-43屏幕截图](https://github.com/OSH-2018/4-Mingx4211/blob/master/2018-07-02 20-52-43屏幕截图.png)
 
 成功读取到了`linux_proc_banner`地址上的数据.
 
@@ -38,4 +38,4 @@ POC会去打开/proc/version这个文件。/proc/version并不是一个文本文
 
 实验环境: Ubuntu 16.04 LTS , 内核版本: x86_64 linux 4.13.0-45-generic 关闭PTI
 
-![check](C:\Users\Mingx\Desktop\check.png)
+![check](https://github.com/OSH-2018/4-Mingx4211/blob/master/check.png)
